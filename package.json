@@ -1,0 +1,29 @@
+{
+  "name": "y_er_chart",
+  "version": "1.0.0",
+  "description": "自用封装的er关系图表库",
+  "type": "module",
+  "main": "dist/chart-library.js",
+  "module": "dist/chart-library.esm.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "dist",
+    "types"
+  ],
+  "scripts": {
+    "build": "NODE_ENV=production rollup -c",
+    "dev": "rollup -c -w",
+    "analyze": "ANALYZE=true npm run build",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^24.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/node": "^18.0.0",
+    "rollup": "^3.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "rollup-plugin-visualizer": "^5.0.0",
+    "typescript": "^5.0.0"
+  }
+}
