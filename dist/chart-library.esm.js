@@ -79,20 +79,6 @@ class CircleElement extends BaseElement {
         const dy = y - (this.y + this.radius);
         return dx * dx + dy * dy <= this.radius * this.radius;
     }
-    // 覆盖draw方法以支持圆形描边
-    draw(ctx) {
-        this.drawContent(ctx);
-        if (this.selected) {
-            ctx.save();
-            ctx.strokeStyle = this.strokeColor;
-            ctx.lineWidth = this.strokeWidth;
-            ctx.setLineDash(this.strokeDash);
-            ctx.beginPath();
-            ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2);
-            ctx.stroke();
-            ctx.restore();
-        }
-    }
 }
 
 class ChartMain extends Chart {

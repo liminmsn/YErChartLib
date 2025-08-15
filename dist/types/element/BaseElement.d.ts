@@ -10,5 +10,4 @@ export declare class CircleElement extends BaseElement {
     constructor(x: number, y: number, radius: number, color?: string);
     drawContent(ctx: CanvasRenderingContext2D): void;
     contains(x: number, y: number): boolean;
-    draw(ctx: CanvasRenderingContext2D): void;
 }
