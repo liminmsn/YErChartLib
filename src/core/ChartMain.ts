@@ -5,14 +5,20 @@ import { Chart } from "./Chart";
 
 export class ChartMain extends Chart {
     private elements: BaseElement[] = [];
-    private selectedElement: BaseElement | null = null;
-    private isDragging = false;
-    private dragOffsetX = 0;
-    private dragOffsetY = 0;
     constructor(dom: HTMLElement | string) {
         super(dom);
         this.initCanvasEvents();
         this.init();
+    }
+    render(): void {
+        // 清空画布
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // 绘制所有元素
+        this.elements.forEach(element => {
+            this.ctx.save();
+            element.draw(this.ctx);
+            this.ctx.restore();
+        });
     }
     init() {
         // 添加带描边样式的元素
@@ -27,19 +33,14 @@ export class ChartMain extends Chart {
         circle.strokeColor = '#34495e';
         this.addElement(circle);
     }
+    
+    private selectedElement: BaseElement | null = null;
+    private isDragging = false;
+    private dragOffsetX = 0;
+    private dragOffsetY = 0;
     addElement(element: BaseElement) {
         this.elements.push(element);
         this.render();
-    }
-    render(): void {
-        // 清空画布
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        // 绘制所有元素
-        this.elements.forEach(element => {
-            this.ctx.save();
-            element.draw(this.ctx);
-            this.ctx.restore();
-        });
     }
     // 性能优化
     private renderRequested = false;

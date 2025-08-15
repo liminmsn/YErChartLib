@@ -1,1 +1,204 @@
-class t{constructor(t){if("string"==typeof t){const e=document.querySelector(t);if(!e)throw new Error(`Container ${t} not found`);t=e}this.canvas=document.createElement("canvas"),this.canvas.width=t.clientWidth,this.canvas.height=t.clientHeight,t.appendChild(this.canvas),this.ctx=this.canvas.getContext("2d")}destroy(){var t;null===(t=this.canvas.parentNode)||void 0===t||t.removeChild(this.canvas)}}class e{constructor(t,e,s,i,h="#ff0000",n=2,r=[]){this.x=t,this.y=e,this.width=s,this.height=i,this.strokeColor=h,this.strokeWidth=n,this.strokeDash=r,this.selected=!1}draw(t){this.drawContent(t),this.selected&&(t.save(),t.strokeStyle=this.strokeColor,t.lineWidth=this.strokeWidth,t.setLineDash(this.strokeDash),t.beginPath(),t.rect(this.x,this.y,this.width,this.height),t.stroke(),t.restore())}contains(t,e){return t>=this.x&&t<=this.x+this.width&&e>=this.y&&e<=this.y+this.height}}class s extends e{constructor(t,e,s,i,h="#3498db"){super(t,e,s,i),this.color=h}drawContent(t){t.fillStyle=this.color,t.fillRect(this.x,this.y,this.width,this.height)}}class i extends e{constructor(t,e,s,i="#e74c3c"){super(t,e,2*s,2*s),this.radius=s,this.color=i}drawContent(t){t.fillStyle=this.color,t.beginPath(),t.arc(this.x+this.radius,this.y+this.radius,this.radius,0,2*Math.PI),t.fill()}contains(t,e){const s=t-(this.x+this.radius),i=e-(this.y+this.radius);return s*s+i*i<=this.radius*this.radius}draw(t){this.drawContent(t),this.selected&&(t.save(),t.strokeStyle=this.strokeColor,t.lineWidth=this.strokeWidth,t.setLineDash(this.strokeDash),t.beginPath(),t.arc(this.x+this.radius,this.y+this.radius,this.radius,0,2*Math.PI),t.stroke(),t.restore())}}class h extends t{constructor(t){super(t),this.elements=[],this.selectedElement=null,this.isDragging=!1,this.dragOffsetX=0,this.dragOffsetY=0,this.renderRequested=!1,this.initCanvasEvents(),this.init()}init(){const t=new s(50,50,100,80,"#2ecc71");t.strokeColor="#e67e22",t.strokeWidth=3,t.strokeDash=[5,5],this.addElement(t);const e=new i(200,100,50,"#9b59b6");e.strokeColor="#34495e",this.addElement(e)}addElement(t){this.elements.push(t),this.render()}render(){this.ctx.clearRect(0,0,this.canvas.width,this.canvas.height),this.elements.forEach(t=>{this.ctx.save(),t.draw(this.ctx),this.ctx.restore()})}requestRender(){this.renderRequested||(this.renderRequested=!0,requestAnimationFrame(()=>{this.render(),this.renderRequested=!1}))}initCanvasEvents(){this.canvas.addEventListener("mousedown",this.handleMouseDown.bind(this)),this.canvas.addEventListener("mousemove",this.handleMouseMove.bind(this)),this.canvas.addEventListener("mouseup",this.handleMouseUp.bind(this)),this.canvas.addEventListener("mouseleave",this.handleMouseUp.bind(this))}getMousePos(t){const e=this.canvas.getBoundingClientRect();return{x:t.clientX-e.left,y:t.clientY-e.top}}handleMouseDown(t){const e=this.getMousePos(t);for(let t=this.elements.length-1;t>=0;t--){const s=this.elements[t];if(e.x>=s.x&&e.x<=s.x+s.width&&e.y>=s.y&&e.y<=s.y+s.height){this.selectedElement=s,this.isDragging=!0,this.dragOffsetX=e.x-s.x,this.dragOffsetY=e.y-s.y;break}}if(1!==t.button);else{t.preventDefault(),this.elements.forEach(t=>t.selected=!1);for(let t=this.elements.length-1;t>=0;t--)if(this.elements[t].contains(e.x,e.y)){this.elements[t].selected=!0;break}this.render()}}handleMouseMove(t){if(!this.isDragging||!this.selectedElement)return;const e=this.getMousePos(t);this.selectedElement.x=e.x-this.dragOffsetX,this.selectedElement.y=e.y-this.dragOffsetY,this.requestRender()}handleMouseUp(){this.isDragging=!1,this.selectedElement=null}}export{t as Chart,h as ChartMain};
+class Chart {
+    constructor(container) {
+        if (typeof container === 'string') {
+            const element = document.querySelector(container);
+            if (!element)
+                throw new Error(`Container ${container} not found`);
+            container = element;
+        }
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = container.clientWidth;
+        this.canvas.height = container.clientHeight;
+        container.appendChild(this.canvas);
+        this.ctx = this.canvas.getContext('2d');
+    }
+    destroy() {
+        var _a;
+        (_a = this.canvas.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.canvas);
+    }
+}
+
+class BaseElement {
+    constructor(x, y, width, height, strokeColor = '#ff0000', strokeWidth = 2, strokeDash = [] // 虚线模式
+    ) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.strokeColor = strokeColor;
+        this.strokeWidth = strokeWidth;
+        this.strokeDash = strokeDash;
+        this.selected = false;
+    }
+    draw(ctx) {
+        this.drawContent(ctx);
+        // 如果选中则绘制描边
+        if (this.selected) {
+            ctx.save(); // 保存当前绘图状态
+            ctx.strokeStyle = this.strokeColor;
+            ctx.lineWidth = this.strokeWidth;
+            ctx.setLineDash(this.strokeDash);
+            // 使用路径绘制代替 strokeRect
+            ctx.beginPath();
+            ctx.rect(this.x, this.y, this.width, this.height);
+            ctx.stroke();
+            ctx.restore(); // 恢复绘图状态
+        }
+    }
+    contains(x, y) {
+        return x >= this.x && x <= this.x + this.width &&
+            y >= this.y && y <= this.y + this.height;
+    }
+}
+
+// src/core/types.ts
+class RectElement extends BaseElement {
+    constructor(x, y, width, height, color = '#3498db') {
+        super(x, y, width, height);
+        this.color = color;
+    }
+    drawContent(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+}
+class CircleElement extends BaseElement {
+    constructor(x, y, radius, color = '#e74c3c') {
+        super(x, y, radius * 2, radius * 2);
+        this.radius = radius;
+        this.color = color;
+    }
+    drawContent(ctx) {
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    contains(x, y) {
+        const dx = x - (this.x + this.radius);
+        const dy = y - (this.y + this.radius);
+        return dx * dx + dy * dy <= this.radius * this.radius;
+    }
+    // 覆盖draw方法以支持圆形描边
+    draw(ctx) {
+        this.drawContent(ctx);
+        if (this.selected) {
+            ctx.save();
+            ctx.strokeStyle = this.strokeColor;
+            ctx.lineWidth = this.strokeWidth;
+            ctx.setLineDash(this.strokeDash);
+            ctx.beginPath();
+            ctx.arc(this.x + this.radius, this.y + this.radius, this.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+}
+
+class ChartMain extends Chart {
+    constructor(dom) {
+        super(dom);
+        this.elements = [];
+        this.selectedElement = null;
+        this.isDragging = false;
+        this.dragOffsetX = 0;
+        this.dragOffsetY = 0;
+        // 性能优化
+        this.renderRequested = false;
+        this.initCanvasEvents();
+        this.init();
+    }
+    render() {
+        // 清空画布
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // 绘制所有元素
+        this.elements.forEach(element => {
+            this.ctx.save();
+            element.draw(this.ctx);
+            this.ctx.restore();
+        });
+    }
+    init() {
+        // 添加带描边样式的元素
+        const rect = new RectElement(50, 50, 100, 80, '#2ecc71');
+        rect.strokeColor = '#e67e22';
+        rect.strokeWidth = 3;
+        rect.strokeDash = [5, 5]; // 虚线描边
+        this.addElement(rect);
+        // 圆形元素
+        const circle = new CircleElement(200, 100, 50, '#9b59b6');
+        circle.strokeColor = '#34495e';
+        this.addElement(circle);
+    }
+    addElement(element) {
+        this.elements.push(element);
+        this.render();
+    }
+    requestRender() {
+        if (!this.renderRequested) {
+            this.renderRequested = true;
+            requestAnimationFrame(() => {
+                this.render();
+                this.renderRequested = false;
+            });
+        }
+    }
+    initCanvasEvents() {
+        this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        this.canvas.addEventListener('mouseleave', this.handleMouseUp.bind(this));
+    }
+    getMousePos(evt) {
+        const rect = this.canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
+    handleMouseDown(evt) {
+        const pos = this.getMousePos(evt);
+        // 检查是否点击了元素
+        for (let i = this.elements.length - 1; i >= 0; i--) {
+            const element = this.elements[i];
+            if (pos.x >= element.x && pos.x <= element.x + element.width &&
+                pos.y >= element.y && pos.y <= element.y + element.height) {
+                this.selectedElement = element;
+                this.isDragging = true;
+                this.dragOffsetX = pos.x - element.x;
+                this.dragOffsetY = pos.y - element.y;
+                break;
+            }
+        }
+        // 中键点击 (button === 1)
+        if (evt.button === 1) {
+            evt.preventDefault(); // 防止浏览器默认行为
+            // 清除之前选中的元素
+            this.elements.forEach(el => el.selected = false);
+            // 查找并选中元素
+            for (let i = this.elements.length - 1; i >= 0; i--) {
+                if (this.elements[i].contains(pos.x, pos.y)) {
+                    this.elements[i].selected = true;
+                    break;
+                }
+            }
+            this.render();
+            return;
+        }
+    }
+    handleMouseMove(evt) {
+        if (!this.isDragging || !this.selectedElement)
+            return;
+        const pos = this.getMousePos(evt);
+        this.selectedElement.x = pos.x - this.dragOffsetX;
+        this.selectedElement.y = pos.y - this.dragOffsetY;
+        this.requestRender();
+    }
+    handleMouseUp() {
+        this.isDragging = false;
+        this.selectedElement = null;
+    }
+}
+
+export { Chart, ChartMain };
+//# sourceMappingURL=chart-library.esm.js.map
