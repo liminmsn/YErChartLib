@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Chart Library Test</title>
+</head>
+
+<body>
+  <div id="chart-container" style="width: 1000px; height: 600px;border: 1px solid black;"></div>
+  <script src="../dist/chart-library.umd.js"></script>
+  <script type="module">
+    console.log('ChartLibrary', ChartLibrary);
+    const { ChartMain } = ChartLibrary;
+    const chat = new ChartMain("#chart-container");
+  </script>
+</body>
+
+</html>

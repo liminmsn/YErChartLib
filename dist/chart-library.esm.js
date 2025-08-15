@@ -1,0 +1,20 @@
+class Chart {
+    constructor(container) {
+        if (typeof container === 'string') {
+            const element = document.querySelector(container);
+            if (!element)
+                throw new Error(`Container ${container} not found`);
+            container = element;
+        }
+        this.canvas = document.createElement('canvas');
+        container.appendChild(this.canvas);
+        this.ctx = this.canvas.getContext('2d');
+    }
+    destroy() {
+        var _a;
+        (_a = this.canvas.parentNode) === null || _a === void 0 ? void 0 : _a.removeChild(this.canvas);
+    }
+}
+
+export { Chart };
+//# sourceMappingURL=chart-library.esm.js.map
