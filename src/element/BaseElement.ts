@@ -1,6 +1,39 @@
-import { BaseElement } from "./types";
-
 // src/core/types.ts
+export interface IChartElement {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    selected: boolean;
+    draw(ctx: CanvasRenderingContext2D): void;
+    contains(x: number, y: number): boolean;
+}
+
+export abstract class BaseElement implements IChartElement {
+    selected = false;
+    constructor(
+        public x: number,
+        public y: number,
+        public width: number,
+        public height: number,
+        public strokeColor: string = '#ff0000',
+        public strokeWidth: number = 2,
+        public strokeDash: number[] = [] // 虚线模式
+    ) { }
+
+    abstract drawContent(ctx: CanvasRenderingContext2D): void;
+
+    draw(ctx: CanvasRenderingContext2D) {
+        this.drawContent(ctx);
+    }
+
+    contains(x: number, y: number): boolean {
+        return x >= this.x && x <= this.x + this.width &&
+            y >= this.y && y <= this.y + this.height;
+    }
+}
+
+//方形
 export class RectElement extends BaseElement {
     constructor(
         x: number,
@@ -18,6 +51,7 @@ export class RectElement extends BaseElement {
     }
 }
 
+// 圆形
 export class CircleElement extends BaseElement {
     constructor(
         x: number,

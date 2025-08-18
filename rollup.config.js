@@ -16,12 +16,12 @@ export default {
     },
     {
       file: 'dist/chart-library.esm.js',
-      format: 'es',
+      format: "es",
       sourcemap: !isProduction
     },
     {
       file: 'dist/chart-library.umd.js',
-      format: 'umd',
+      format: "umd",
       name: 'ChartLibrary',
       sourcemap: !isProduction
     }
@@ -32,9 +32,19 @@ export default {
     typescript({
       tsconfig: './tsconfig.json',
       exclude: ['test/**', 'examples/**'],
+      sourceMap: !isProduction,
+      inlineSources: !isProduction,
+      declaration: !isProduction, // 生产环境不生成声明文件
+      declarationDir: './types',
+      emitDeclarationOnly: false,
+      outputToFilesystem: false, // 显式设置为false
       tslib: 'tslib'
     }),
-    isProduction && terser(),
+    isProduction && terser({
+      format: {
+        comments: false
+      }
+    }),
     visualizer({
       filename: 'bundle-analysis.html',
       open: !isProduction && process.env.ANALYZE === 'true'

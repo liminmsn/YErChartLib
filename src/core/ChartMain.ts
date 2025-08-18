@@ -1,5 +1,4 @@
-import { RectElement, CircleElement } from "../element/BaseElement";
-import { BaseElement } from "../element/types";
+import { RectElement, CircleElement, BaseElement } from "../element/BaseElement";
 import { Chart } from "./Chart";
 
 
@@ -9,6 +8,15 @@ export class ChartMain extends Chart {
         super(dom);
         this.initCanvasEvents();
         this.init();
+    }
+    init() {
+        const rect = new RectElement(50, 50, 100, 80);
+        rect.strokeColor = '#e67e22';
+        this.addElement(rect);
+
+        // 圆形元素
+        const circle = new CircleElement(200, 100, 50, '#9b59b6');
+        this.addElement(circle);
     }
     render(): void {
         // 清空画布
@@ -20,28 +28,6 @@ export class ChartMain extends Chart {
             this.ctx.restore();
         });
     }
-    init() {
-        // 添加带描边样式的元素
-        const rect = new RectElement(50, 50, 100, 80, '#2ecc71');
-        rect.strokeColor = '#e67e22';
-        rect.strokeWidth = 3;
-        rect.strokeDash = [5, 5]; // 虚线描边
-        this.addElement(rect);
-
-        // 圆形元素
-        const circle = new CircleElement(200, 100, 50, '#9b59b6');
-        circle.strokeColor = '#34495e';
-        this.addElement(circle);
-    }
-    
-    private selectedElement: BaseElement | null = null;
-    private isDragging = false;
-    private dragOffsetX = 0;
-    private dragOffsetY = 0;
-    addElement(element: BaseElement) {
-        this.elements.push(element);
-        this.render();
-    }
     // 性能优化
     private renderRequested = false;
     requestRender() {
@@ -52,6 +38,11 @@ export class ChartMain extends Chart {
                 this.renderRequested = false;
             });
         }
+    }
+
+    addElement(element: BaseElement) {
+        this.elements.push(element);
+        this.render();
     }
     private initCanvasEvents() {
         this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
@@ -66,14 +57,16 @@ export class ChartMain extends Chart {
             y: evt.clientY - rect.top
         };
     }
+    private selectedElement: BaseElement | null = null;
+    private isDragging = false;
+    private dragOffsetX = 0;
+    private dragOffsetY = 0;
     private handleMouseDown(evt: MouseEvent) {
         const pos = this.getMousePos(evt);
-        // 检查是否点击了元素
         for (let i = this.elements.length - 1; i >= 0; i--) {
             const element = this.elements[i];
             if (pos.x >= element.x && pos.x <= element.x + element.width &&
                 pos.y >= element.y && pos.y <= element.y + element.height) {
-
                 this.selectedElement = element;
                 this.isDragging = true;
                 this.dragOffsetX = pos.x - element.x;

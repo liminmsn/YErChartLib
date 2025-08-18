@@ -4,17 +4,24 @@
     "module": "esnext",
     "lib": ["es6", "dom"],
     "declaration": true,
+    "declarationMap": true,  // 新增：为声明文件生成sourcemap
     "declarationDir": "types",
     "sourceMap": true,
+    "inlineSources": true,   // 新增：将源码内联到sourcemap
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "importHelpers": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "dist",
-    "rootDir": "src"
+    "outDir": "dist/tsc",    // 修改：避免与Rollup输出冲突
+    "rootDir": "src",
+    "composite": true        // 新增：支持项目引用
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts",
+    "dist"                   // 新增：排除Rollup输出目录
+  ]
 }
